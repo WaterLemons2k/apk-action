@@ -24,6 +24,9 @@ inputs:
   gradle-args:
     description: The arguments passed to Gradle
     default: --no-daemon
+  release:
+    description: Build a release or debug APK
+    default: 'true'
 
 runs:
   using: composite
@@ -45,9 +48,11 @@ runs:
       env:
         GRADLE_ARGS: ${{ inputs.gradle-args }}
       run: >
-        #Release APK
+        #Build APK
 
-        chmod +x ./gradlew && ./gradlew assembleRelease $GRADLE_ARGS
+        chmod +x ./gradlew && ./gradlew
+        ${{ inputs.release == 'true' && 'assembleRelease' || 'assembleDebug' }}
+        $GRADLE_ARGS
         -Pandroid.injected.signing.store.file="$KEYSTORE_PATH"
         -Pandroid.injected.signing.store.password='${{ inputs.keystore-password }}'
         -Pandroid.injected.signing.key.alias='${{ inputs.key-alias }}'
