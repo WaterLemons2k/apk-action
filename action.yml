@@ -48,13 +48,22 @@ runs:
     - shell: sh
       env:
         GRADLE_ARGS: ${{ inputs.gradle-args }}
-      run: >
+      run: |
         #Build APK
 
-        chmod +x ./gradlew && ./gradlew
-        ${{ inputs.release == 'true' && 'assembleRelease' || 'assembleDebug' }}
+        chmod +x ./gradlew
+        if [ $? -ne 0 ]; then
+          echo "::error::gradlew not found or not executable."
+          exit 1
+        fi
+
+        if [ '${{ inputs.release }}' = 'true' ]; then
+          ./gradlew assembleRelease \
+        -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
+        -Pandroid.injected.signing.store.password='${{ inputs.keystore-password }}' \
+        -Pandroid.injected.signing.key.alias='${{ inputs.key-alias }}' \
+        -Pandroid.injected.signing.key.password='${{ inputs.key-password }}' \
         $GRADLE_ARGS
-        -Pandroid.injected.signing.store.file="$KEYSTORE_PATH"
-        -Pandroid.injected.signing.store.password='${{ inputs.keystore-password }}'
-        -Pandroid.injected.signing.key.alias='${{ inputs.key-alias }}'
-        -Pandroid.injected.signing.key.password='${{ inputs.key-password }}'
+        else
+          ./gradlew assembleDebug $GRADLE_ARGS
+        fi
