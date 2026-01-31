@@ -47,11 +47,16 @@ ${result.stdout.toString()}`
   return true;
 }
 
-function init() {
+function setupKeystore() {
   const { keystorePath } = defineEnv();
   core.debug(`Writing keystore to ${keystorePath}`);
 
   writeKeystore(keystorePath);
   checkKeystore(keystorePath);
+}
+
+function init() {
+  const release = core.getInput('release');
+  release.toLowerCase() === 'true' && setupKeystore();
 }
 init();

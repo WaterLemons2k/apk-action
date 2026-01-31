@@ -35,6 +35,7 @@ runs:
       env:
         INPUT_KEYSTORE: ${{ inputs.keystore }}
         INPUT_JAVA_VERSION: ${{ inputs.java-version }}
+        INPUT_RELEASE: ${{ inputs.release }}
       working-directory: ${{ github.action_path }}
       run: ./init
 
@@ -53,7 +54,7 @@ runs:
         chmod +x ./gradlew && ./gradlew
         ${{ inputs.release == 'true' && 'assembleRelease' || 'assembleDebug' }}
         $GRADLE_ARGS
-        ${{ inputs.release == 'true' && '-Pandroid.injected.signing.store.file="$KEYSTORE_PATH"' || '' }}
+        -Pandroid.injected.signing.store.file="$KEYSTORE_PATH"
         -Pandroid.injected.signing.store.password='${{ inputs.keystore-password }}'
         -Pandroid.injected.signing.key.alias='${{ inputs.key-alias }}'
         -Pandroid.injected.signing.key.password='${{ inputs.key-password }}'
